@@ -1,0 +1,32 @@
+# ================================================
+# Application Info
+# ================================================
+spring.application.name=tranqilo
+
+# ================================================
+# Database Configuration
+# These values will be loaded from the .env file
+# ================================================
+spring.datasource.url=${DB_URL}              # e.g., jdbc:postgresql://localhost:5432/tranqilo_db
+spring.datasource.username=${DB_USERNAME}    # e.g., tranqilo_admin
+spring.datasource.password=${DB_PASSWORD}    # e.g., secret_password
+
+# ================================================
+# Hibernate / JPA Settings
+# ================================================
+spring.jpa.hibernate.ddl-auto=update         # Can be: none, validate, update, create, create-drop
+spring.jpa.show-sql=true                     # Set to false to disable SQL logging
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+
+# ================================================
+# Spring Security
+# Leave blank or override in .env for dev purposes
+# ================================================
+spring.security.user.name=
+spring.security.user.password=
+
+# ================================================
+# Disable Default Spring Security (Optional)
+# Comment this line to enable default login screen
+# ================================================
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
