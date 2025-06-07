@@ -202,11 +202,11 @@ README.html
 
 # === Private Spring Boot-related data and credentials ===
 # For local development we can keep these things tracked.
-src/main/resources/application.properties
-application.properties
-application.yml
-application-*.properties
- application-*.yml
+#src/main/resources/application.properties
+#application.properties
+#application.yml
+#application-*.properties
+# application-*.yml
 .env
 .env.*
 *.key
