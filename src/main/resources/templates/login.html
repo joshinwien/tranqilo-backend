@@ -1,20 +1,41 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Tranqilo Login</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f4f4; }
+        .login-container { padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 1rem; }
+        .error { color: red; }
+    </style>
 </head>
 <body>
-<h1>Login to Tranqilo</h1>
-<div th:if="${param.error}">
-    Invalid username and password.
+<div class="login-container">
+    <h2>Welcome to Tranqilo</h2>
+    <p>Please sign in to continue</p>
+
+    <div th:if="${param.error}" class="error">
+        Invalid username or password.
+    </div>
+
+    <div th:if="${param.logout}" class="success">
+        You have been logged out.
+    </div>
+
+    <form th:action="@{/login}" method="post">
+        <div class="form-group">
+            <label for="username">Username:</label><br/>
+            <input type="text" id="username" name="username" required autofocus />
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label><br/>
+            <input type="password" id="password" name="password" required />
+        </div>
+        <div>
+            <button type="submit">Sign In</button>
+        </div>
+    </form>
 </div>
-<div th:if="${param.logout}">
-    You have been logged out.
-</div>
-<form th:action="@{/login}" method="post">
-    <div><label> Username : <input type="text" name="username"/> </label></div>
-    <div><label> Password: <input type="password" name="password"/> </label></div>
-    <div><input type="submit" value="Sign In"/></div>
-</form>
 </body>
 </html>

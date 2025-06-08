@@ -1,11 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Client Dashboard</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; }
+        .logout-form { margin-top: 2rem; }
+        .logout-button { background-color: #d9534f; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
+        .logout-button:hover { background-color: #c9302c; }
+    </style>
 </head>
 <body>
 <h1>Client Dashboard</h1>
 <p>Welcome, Client!</p>
-<p><a href="/">Back to Home</a></p>
+
+<p><a th:href="@{/}">Back to Home</a></p>
+
+<form class="logout-form" th:action="@{/logout}" method="post">
+    <button class="logout-button" type="submit">Logout</button>
+</form>
 </body>
 </html>
