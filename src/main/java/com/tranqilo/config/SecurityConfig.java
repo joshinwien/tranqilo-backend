@@ -28,11 +28,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                        // ADD THE /register URL HERE
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/register").permitAll()
                         .requestMatchers("/coach/**").hasRole("COACH")
                         .requestMatchers("/client/**").hasRole("CLIENT")
                         .anyRequest().authenticated()
                 )
+                // ... rest of the configuration is the same
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)
@@ -46,4 +48,6 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+
 }

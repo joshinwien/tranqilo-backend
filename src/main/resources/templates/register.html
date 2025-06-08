@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register for Tranqilo</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f4f4f4; margin: 0; }
+        .container { padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: .5rem; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #5cb85c; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .error { color: red; font-size: 0.8rem; }
+        .form-link { text-align: center; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Create Your Account</h2>
+    <form th:action="@{/register}" th:object="${user}" method="post">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" th:field="*{username}" required/>
+            <p class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" th:field="*{password}" required/>
+            <p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+        </div>
+        <div class="form-group">
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required/>
+            <p class="error" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></p>
+        </div>
+        <div class="form-group">
+            <label for="role">I am a:</label>
+            <select id="role" th:field="*{role}" required>
+                <option value="">-- Select a Role --</option>
+                <option th:value="COACH" th:text="Coach"></option>
+                <option th:value="CLIENT" th:text="Client"></option>
+            </select>
+            <p class="error" th:if="${#fields.hasErrors('role')}" th:errors="*{role}"></p>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+    <div class="form-link">
+        <a th:href="@{/login}">Already have an account? Login</a>
+    </div>
+</div>
+</body>
+</html>
