@@ -14,6 +14,13 @@
 <h1>Client Dashboard</h1>
 <p>Welcome, Client!</p>
 
+<div th:if="${coach != null}">
+    <p>Your assigned coach is: <strong th:text="${coach.username}"></strong></p>
+</div>
+<div th:if="${coach == null}">
+    <p>You are not yet assigned to a coach.</p>
+</div>
+
 <p><a th:href="@{/}">Back to Home</a></p>
 
 <form class="logout-form" th:action="@{/logout}" method="post">

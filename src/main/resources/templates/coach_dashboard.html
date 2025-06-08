@@ -8,15 +8,24 @@
         .logout-form { margin-top: 2rem; }
         .logout-button { background-color: #d9534f; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
         .logout-button:hover { background-color: #c9302c; }
+        .client-list { list-style-type: disc; padding-left: 20px; }
     </style>
 </head>
 <body>
 <h1>Coach Dashboard</h1>
 <p>Welcome, Coach!</p>
 
+<h2>Your Clients</h2>
+<div th:if="${#lists.isEmpty(clients)}">
+    <p>You have no clients yet.</p>
+</div>
+<ul class="client-list" th:unless="${#lists.isEmpty(clients)}">
+    <li th:each="client : ${clients}" th:text="${client.username}"></li>
+</ul>
+
 <p><a th:href="@{/}">Back to Home</a></p>
 
-<form class="logout-form" th:action="@{/logout}" method="post">
+<form class.logout-form th:action="@{/logout}" method="post">
     <button class="logout-button" type="submit">Logout</button>
 </form>
 </body>

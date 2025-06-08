@@ -1,25 +1,28 @@
 package com.tranqilo.controller;
 
+import com.tranqilo.model.User;
+import com.tranqilo.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
 
-    /**
-     * Shows the login page.
-     */
+    private final UserRepository userRepository;
+
+    public HomeController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @GetMapping("/login")
     public String login() {
         return "login";
     }
 
-    /**
-     * Redirects users to their specific dashboard after login,
-     * or shows a generic home page.
-     */
     @GetMapping("/")
     public String home(Authentication authentication) {
         if (authentication != null && authentication.isAuthenticated()) {
@@ -32,17 +35,24 @@ public class HomeController {
                 }
             }
         }
-        // Fallback for any other case or if no specific role dashboard is needed
         return "home";
     }
 
     @GetMapping("/coach/dashboard")
-    public String coachDashboard() {
+    @Transactional
+    public String coachDashboard(Model model, Authentication authentication) {
+        User currentUser = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new IllegalStateException("Cannot find logged in coach"));
+        model.addAttribute("clients", currentUser.getClients());
         return "coach_dashboard";
     }
 
     @GetMapping("/client/dashboard")
-    public String clientDashboard() {
+    @Transactional
+    public String clientDashboard(Model model, Authentication authentication) {
+        User currentUser = userRepository.findByUsername(authentication.getName())
+                .orElseThrow(() -> new IllegalStateException("Cannot find logged in client"));
+        model.addAttribute("coach", currentUser.getCoach());
         return "client_dashboard";
     }
 }

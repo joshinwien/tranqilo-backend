@@ -1,6 +1,8 @@
 package com.tranqilo.model;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -19,6 +21,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    // For Clients: Link to their Coach
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coach_id")
+    private User coach;
+
+    // For Coaches: Link to their list of Clients
+    @OneToMany(mappedBy = "coach", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<User> clients = new HashSet<>();
 
     // Constructors
     public User() {}
@@ -60,5 +71,21 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public User getCoach() {
+        return coach;
+    }
+
+    public void setCoach(User coach) {
+        this.coach = coach;
+    }
+
+    public Set<User> getClients() {
+        return clients;
+    }
+
+    public void setClients(Set<User> clients) {
+        this.clients = clients;
     }
 }

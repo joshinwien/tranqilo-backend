@@ -6,6 +6,7 @@ import com.tranqilo.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -19,26 +20,29 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
-        // Create COACH user if not exists
-        if (userRepository.findByUsername("coach").isEmpty()) {
-            User coach = new User();
-            coach.setUsername("coach");
-            // IMPORTANT: Always encode passwords before saving
-            coach.setPassword(passwordEncoder.encode("coach"));
-            coach.setRole(Role.COACH);
-            userRepository.save(coach);
-            System.out.println("Created COACH user");
-        }
+        // Step 1: Find or create the COACH user
+        User coach = userRepository.findByUsername("coach").orElseGet(() -> {
+            System.out.println("Creating COACH user...");
+            User newCoach = new User("coach", passwordEncoder.encode("coach"), Role.COACH);
+            return userRepository.save(newCoach);
+        });
 
-        // Create CLIENT user if not exists
-        if (userRepository.findByUsername("client").isEmpty()) {
-            User client = new User();
-            client.setUsername("client");
-            client.setPassword(passwordEncoder.encode("client"));
-            client.setRole(Role.CLIENT);
+        // Step 2: Find or create the CLIENT user
+        User client = userRepository.findByUsername("client").orElseGet(() -> {
+            System.out.println("Creating CLIENT user...");
+            User newClient = new User("client", passwordEncoder.encode("client"), Role.CLIENT);
+            return userRepository.save(newClient);
+        });
+
+        // Step 3: Check if the client is linked to the coach and link them if not.
+        // This is now separate and will run every time, fixing existing data.
+        if (client.getCoach() == null) {
+            System.out.println("Client is not linked to a coach. Linking now...");
+            client.setCoach(coach);
             userRepository.save(client);
-            System.out.println("Created CLIENT user");
+            System.out.println("Client successfully linked to coach.");
         }
     }
 }
