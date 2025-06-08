@@ -1,6 +1,7 @@
 package com.tranqilo.model;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,12 +23,25 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    // For Clients: Link to their Coach
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "email", unique = true)
+    private String email;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coach_id")
     private User coach;
 
-    // For Coaches: Link to their list of Clients
     @OneToMany(mappedBy = "coach", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<User> clients = new HashSet<>();
 
@@ -71,6 +85,46 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
     }
 
     public User getCoach() {

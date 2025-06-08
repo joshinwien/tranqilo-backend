@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<header th:fragment="page-header" style="background-color: #f8f9fa; padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+    <div th:if="${currentUser != null}" style="display: flex; align-items: center; gap: 15px;">
+        <div th:if="${currentUser.profilePictureUrl != null}">
+            <img th:src="@{${currentUser.profilePictureUrl}}" alt="Profile Picture" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+        </div>
+        <div th:if="${currentUser.profilePictureUrl == null}">
+            <img th:src="@{/images/default-avatar.png}" alt="Default Profile Picture" style="width: 50px; height: 50px; border-radius: 50%;">
+        </div>
+        <span th:text="${currentUser.firstName + ' ' + currentUser.lastName}" style="font-weight: bold;"></span>
+    </div>
+
+    <form th:if="${currentUser != null}" th:action="@{/logout}" method="post">
+        <button type="submit" style="background-color: #d9534f; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Logout</button>
+    </form>
+</header>
+
+</body>
+</html>

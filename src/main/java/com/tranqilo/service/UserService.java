@@ -25,6 +25,11 @@ public class UserService {
         if (userRepository.findByUsername(registrationDto.getUsername()).isPresent()) {
             throw new IllegalStateException("Username already exists");
         }
+        // Check if email already exists
+        // (You should create a findByEmail method in your UserRepository for this)
+        // if (userRepository.findByEmail(registrationDto.getEmail()).isPresent()) {
+        //     throw new IllegalStateException("Email already in use");
+        // }
 
         // Check if passwords match
         if (!registrationDto.getPassword().equals(registrationDto.getConfirmPassword())) {
@@ -36,6 +41,10 @@ public class UserService {
         // Always encode the password before saving!
         newUser.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
         newUser.setRole(registrationDto.getRole());
+        newUser.setFirstName(registrationDto.getFirstName());
+        newUser.setLastName(registrationDto.getLastName());
+        newUser.setEmail(registrationDto.getEmail());
+        newUser.setBirthDate(registrationDto.getBirthDate());
 
         userRepository.save(newUser);
     }

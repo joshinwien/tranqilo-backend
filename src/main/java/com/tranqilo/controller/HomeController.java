@@ -42,6 +42,7 @@ public class HomeController {
                 }
             }
         }
+        // This can be a generic landing page for users whose roles are not CLIENT or COACH
         return "home";
     }
 
@@ -51,16 +52,19 @@ public class HomeController {
         User currentUser = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new IllegalStateException("Cannot find logged in coach"));
         model.addAttribute("clients", currentUser.getClients());
-        // Find and add unassigned clients to the model
         model.addAttribute("unassignedClients", userRepository.findByRoleAndCoachIsNull(Role.CLIENT));
         return "coach_dashboard";
     }
+
+
 
     @GetMapping("/client/dashboard")
     @Transactional
     public String clientDashboard(Model model, Authentication authentication) {
         User currentUser = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new IllegalStateException("Cannot find logged in client"));
+        // We no longer need to pass the client explicitly, the GlobalControllerAdvice handles it.
+        // We only need to pass the data specific to this page.
         model.addAttribute("coach", currentUser.getCoach());
         return "client_dashboard";
     }
