@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Welcome to Tranqilo</title>
+</head>
+<body>
+<h1>Welcome!</h1>
+<p>You are logged in as <span sec:authentication="name"></span> with role <span sec:authentication="principal.authorities"></span>.</p>
+
+<div sec:authorize="hasRole('COACH')">
+    <p><a th:href="@{/coach/dashboard}">Go to Coach Dashboard</a></p>
+</div>
+
+<div sec:authorize="hasRole('CLIENT')">
+    <p><a th:href="@{/client/dashboard}">Go to Client Dashboard</a></p>
+</div>
+
+<form th:action="@{/logout}" method="post">
+    <input type="submit" value="Logout" />
+</form>
+</body>
+</html>
