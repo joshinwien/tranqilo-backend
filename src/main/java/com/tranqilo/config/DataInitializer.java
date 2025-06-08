@@ -29,20 +29,27 @@ public class DataInitializer implements CommandLineRunner {
             return userRepository.save(newCoach);
         });
 
-        // Step 2: Find or create the CLIENT user
+        // Step 2: Find or create the first CLIENT user
         User client = userRepository.findByUsername("client").orElseGet(() -> {
-            System.out.println("Creating CLIENT user...");
+            System.out.println("Creating CLIENT user 'client'...");
             User newClient = new User("client", passwordEncoder.encode("client"), Role.CLIENT);
             return userRepository.save(newClient);
         });
 
-        // Step 3: Check if the client is linked to the coach and link them if not.
-        // This is now separate and will run every time, fixing existing data.
+        // Step 3: Ensure the first CLIENT is always linked to the COACH
         if (client.getCoach() == null) {
-            System.out.println("Client is not linked to a coach. Linking now...");
+            System.out.println("Linking 'client' to 'coach'...");
             client.setCoach(coach);
             userRepository.save(client);
-            System.out.println("Client successfully linked to coach.");
         }
+
+        // --- NEW SECTION ---
+        // Step 4: Find or create the second, unassigned CLIENT user ('client2')
+        userRepository.findByUsername("client2").orElseGet(() -> {
+            System.out.println("Creating unassigned CLIENT user 'client2'...");
+            User client2 = new User("client2", passwordEncoder.encode("client2"), Role.CLIENT);
+            // We do NOT set a coach for client2. It will remain unassigned.
+            return userRepository.save(client2);
+        });
     }
 }

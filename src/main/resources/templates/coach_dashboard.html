@@ -4,29 +4,54 @@
     <meta charset="UTF-8">
     <title>Coach Dashboard</title>
     <style>
-        body { font-family: sans-serif; margin: 2rem; }
-        .logout-form { margin-top: 2rem; }
-        .logout-button { background-color: #d9534f; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; }
-        .logout-button:hover { background-color: #c9302c; }
-        .client-list { list-style-type: disc; padding-left: 20px; }
+        body { font-family: sans-serif; margin: 2rem; max-width: 800px; }
+        .success { color: green; border: 1px solid green; padding: 10px; margin-bottom: 1rem; border-radius: 4px; }
+        .error { color: red; border: 1px solid red; padding: 10px; margin-bottom: 1rem; border-radius: 4px; }
+        .client-list { list-style-type: none; padding-left: 0; }
+        .client-list li { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;}
+        .remove-btn { background-color: #d9534f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
 <h1>Coach Dashboard</h1>
 <p>Welcome, Coach!</p>
 
+<div th:if="${successMessage}" class="success" th:text="${successMessage}"></div>
+<div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
+
+<hr>
+
+<h2>Add a Client</h2>
+<form th:action="@{/coach/add-client}" method="post">
+    <label for="client-select">Select an unassigned client:</label>
+    <select id="client-select" name="clientUsername" style="margin-right: 10px;">
+        <option value="">-- Available Clients --</option>
+        <option th:each="client : ${unassignedClients}"
+                th:value="${client.username}"
+                th:text="${client.username}"></option>
+    </select>
+    <button type="submit">Add Client</button>
+</form>
+
+<hr>
+
 <h2>Your Clients</h2>
 <div th:if="${#lists.isEmpty(clients)}">
     <p>You have no clients yet.</p>
 </div>
 <ul class="client-list" th:unless="${#lists.isEmpty(clients)}">
-    <li th:each="client : ${clients}" th:text="${client.username}"></li>
+    <li th:each="client : ${clients}">
+        <span th:text="${client.username}"></span>
+        <form th:action="@{/coach/remove-client}" method="post" style="display: inline;">
+            <input type="hidden" name="clientUsername" th:value="${client.username}" />
+            <button type="submit" class="remove-btn">Remove</button>
+        </form>
+    </li>
 </ul>
 
-<p><a th:href="@{/}">Back to Home</a></p>
-
-<form class.logout-form th:action="@{/logout}" method="post">
-    <button class="logout-button" type="submit">Logout</button>
+<form th:action="@{/logout}" method="post" style="margin-top: 2rem;">
+    <button type="submit">Logout</button>
 </form>
+
 </body>
 </html>
