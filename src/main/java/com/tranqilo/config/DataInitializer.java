@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 
-@Component // Make sure this is UNCOMMENTED for the update to run
+@Component
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -25,8 +25,14 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         // --- COACH ---
-        User coach = userRepository.findByUsername("coach")
-                .orElseGet(() -> new User("coach", passwordEncoder.encode("coach"), Role.COACH));
+        User coach = userRepository.findByUsername("coach").orElseGet(() -> {
+            // Use the no-argument constructor and setters instead
+            User newCoach = new User();
+            newCoach.setUsername("coach");
+            newCoach.setPassword(passwordEncoder.encode("coach"));
+            newCoach.setRole(Role.COACH);
+            return newCoach;
+        });
         // If the user was just created or existed without details, update them.
         if (coach.getFirstName() == null) {
             System.out.println("Updating details for COACH user...");
@@ -39,8 +45,14 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         // --- CLIENT ---
-        User client = userRepository.findByUsername("client")
-                .orElseGet(() -> new User("client", passwordEncoder.encode("client"), Role.CLIENT));
+        User client = userRepository.findByUsername("client").orElseGet(() -> {
+            // Use the no-argument constructor and setters instead
+            User newClient = new User();
+            newClient.setUsername("client");
+            newClient.setPassword(passwordEncoder.encode("client"));
+            newClient.setRole(Role.CLIENT);
+            return newClient;
+        });
         // If the user was just created or existed without details, update them.
         if (client.getFirstName() == null) {
             System.out.println("Updating details for CLIENT 'client'...");
@@ -53,8 +65,14 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         // --- CLIENT 2 ---
-        User client2 = userRepository.findByUsername("client2")
-                .orElseGet(() -> new User("client2", passwordEncoder.encode("client2"), Role.CLIENT));
+        User client2 = userRepository.findByUsername("client2").orElseGet(() -> {
+            // Use the no-argument constructor and setters instead
+            User newClient2 = new User();
+            newClient2.setUsername("client2");
+            newClient2.setPassword(passwordEncoder.encode("client2"));
+            newClient2.setRole(Role.CLIENT);
+            return newClient2;
+        });
         // If the user was just created or existed without details, update them.
         if (client2.getFirstName() == null) {
             System.out.println("Updating details for CLIENT 'client2'...");
