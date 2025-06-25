@@ -19,19 +19,19 @@ public class CheckIn {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false) // name not needed?
     private User user;
 
     @Column(nullable = false)
-    private Integer mood; // e.g., a score from 1-5
+    private Integer mood; // e.g., a score from 1-10
 
     @Column(nullable = false)
-    private Integer energy; // e.g., a score from 1-5
+    private Integer energy; // e.g., a score from 1-10
 
 //    @Column(name = "recovery_score", nullable = false)
 //    private Integer recoveryScore; // e.g., a score from 1-10
 
-    @Lob
+    @Lob // check this
     private String notes;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -41,4 +41,5 @@ public class CheckIn {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
 }
