@@ -1,7 +1,7 @@
 package com.tranqilo.controller;
 
-import com.tranqilo.model.User;
-import com.tranqilo.repository.UserRepository;
+import com.tranqilo.dto.UserDto;
+import com.tranqilo.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,20 +14,20 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 public class UserApiController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public UserApiController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserApiController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDto> getAllUsers() {
+        return userService.getAllUsersAsDto();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return userRepository.findById(id)
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+        return userService.getUserByIdAsDto(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

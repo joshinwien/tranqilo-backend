@@ -1,12 +1,17 @@
 package com.tranqilo.service;
 
 import com.tranqilo.dto.RegistrationDto;
+import com.tranqilo.dto.UserDto;
 import com.tranqilo.model.Role;
 import com.tranqilo.model.User;
 import com.tranqilo.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -80,5 +85,57 @@ public class UserService {
 
         client.setCoach(null); // This severs the relationship
         userRepository.save(client);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserDto> getAllUsersAsDto() {
+        return userRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<UserDto> getUserByIdAsDto(Long id) {
+        return userRepository.findById(id).map(this::convertToDto);
+    }
+
+    private UserDto convertToDto(User user) {
+        UserDto dto = new UserDto();
+        dto.setId(user.getId());
+        dto.setUsername(user.getUsername());
+        dto.setRole(user.getRole());
+        dto.setFirstName(user.getFirstName());
+        dto.setLastName(user.getLastName());
+        dto.setEmail(user.getEmail());
+        dto.setBirthDate(user.getBirthDate());
+        dto.setProfilePictureUrl(user.getProfilePictureUrl());
+
+        if (user.getRole() == Role.COACH) {
+            dto.setClients(user.getClients().stream().map(this::convertClientToSummaryDto).collect(Collectors.toSet()));
+        }
+
+        if (user.getRole() == Role.CLIENT && user.getCoach() != null) {
+            dto.setCoach(convertCoachToSummaryDto(user.getCoach()));
+        }
+
+        return dto;
+    }
+
+    private UserDto.ClientSummaryDto convertClientToSummaryDto(User client) {
+        UserDto.ClientSummaryDto summaryDto = new UserDto.ClientSummaryDto();
+        summaryDto.setId(client.getId());
+        summaryDto.setUsername(client.getUsername());
+        summaryDto.setFirstName(client.getFirstName());
+        summaryDto.setLastName(client.getLastName());
+        return summaryDto;
+    }
+
+    private UserDto.CoachSummaryDto convertCoachToSummaryDto(User coach) {
+        UserDto.CoachSummaryDto summaryDto = new UserDto.CoachSummaryDto();
+        summaryDto.setId(coach.getId());
+        summaryDto.setUsername(coach.getUsername());
+        summaryDto.setFirstName(coach.getFirstName());
+        summaryDto.setLastName(coach.getLastName());
+        return summaryDto;
     }
 }

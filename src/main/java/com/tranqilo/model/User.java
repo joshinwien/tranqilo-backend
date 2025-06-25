@@ -52,6 +52,4 @@ public class User {
     @OneToMany(mappedBy = "coach", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<User> clients = new HashSet<>();
 
-    // All constructors, getters, and setters are now generated automatically by Lombok.
-    // No need to write them manually.
 }
