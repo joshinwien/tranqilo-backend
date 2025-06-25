@@ -4,13 +4,55 @@
     <meta charset="UTF-8">
     <title>Coach Dashboard</title>
     <style>
-        body { font-family: sans-serif; margin: 0; }
-        .dashboard-content { padding: 0 2rem 2rem 2rem; max-width: 800px;}
-        .client-list { list-style-type: none; padding-left: 0; }
-        .client-list li { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;}
-        .remove-btn { background-color: #d9534f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .success { color: green; border: 1px solid green; padding: 10px; margin-bottom: 1rem; border-radius: 4px; }
-        .error { color: red; border: 1px solid red; padding: 10px; margin-bottom: 1rem; border-radius: 4px; }
+        body {
+            font-family: sans-serif;
+            margin: 0;
+        }
+
+        .dashboard-content {
+            padding: 0 2rem 2rem 2rem;
+            max-width: 800px;
+        }
+
+        .client-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .client-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .remove-btn {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .success {
+            color: green;
+            border: 1px solid green;
+            padding: 10px;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .error {
+            color: red;
+            border: 1px solid red;
+            padding: 10px;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -45,10 +87,17 @@
     <ul class="client-list" th:unless="${#lists.isEmpty(clients)}">
         <li th:each="client : ${clients}">
             <span th:text="${client.username}"></span>
-            <form th:action="@{/coach/remove-client}" method="post" style="display: inline;">
-                <input type="hidden" name="clientUsername" th:value="${client.username}" />
-                <button type="submit" class="remove-btn">Remove</button>
-            </form>
+            <div>
+                <form th:action="@{/conversations/start}" method="post" style="display: inline;">
+                    <input type="hidden" name="recipientUsername" th:value="${client.username}"/>
+                    <button type="submit">Message</button>
+                </form>
+
+                <form th:action="@{/coach/remove-client}" method="post" style="display: inline;">
+                    <input type="hidden" name="clientUsername" th:value="${client.username}"/>
+                    <button type="submit" class="remove-btn">Remove</button>
+                </form>
+            </div>
         </li>
     </ul>
 </div>

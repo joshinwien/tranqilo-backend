@@ -5,14 +5,14 @@
     <title>Conversation</title>
     <style>
         body { font-family: sans-serif; margin: 0; }
-        .content { padding: 0 2rem 2rem 2rem; max-width: 800px; }
-        .message-list { list-style-type: none; padding: 0; margin-bottom: 2rem; }
-        .message { padding: 10px; border-radius: 8px; margin-bottom: 10px; max-width: 70%; }
-        .sent { background-color: #dcf8c6; align-self: flex-end; margin-left: auto; }
+        .content { padding: 0 2rem 2rem 2rem; max-width: 800px; margin: auto; }
+        .message-list { list-style-type: none; padding: 0; margin-bottom: 2rem; display: flex; flex-direction: column; }
+        .message { padding: 10px; border-radius: 8px; margin-bottom: 10px; max-width: 70%; border: 1px solid #ddd; }
+        .sent { background-color: #dcf8c6; align-self: flex-end; }
         .received { background-color: #f1f0f0; align-self: flex-start; }
         .message-sender { font-weight: bold; font-size: 0.8em; color: #555; margin-bottom: 4px; }
-        .message-form textarea { width: 100%; padding: 10px; box-sizing: border-box; }
-        .message-form button { padding: 10px 15px; background-color: #5cb85c; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .message-form textarea { width: 100%; padding: 10px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; }
+        .message-form button { padding: 10px 15px; background-color: #5cb85c; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -24,15 +24,15 @@
 
     <div class="message-list">
         <div th:each="msg : ${messages}" class="message"
-             th:classappend="${msg.senderUsername == #authentication.name} ? 'sent' : 'received'">
+             th:classappend="${msg.senderUsername == currentUsername} ? 'sent' : 'received'">
             <div class="message-sender" th:text="${msg.senderUsername}"></div>
             <div th:text="${msg.content}"></div>
         </div>
     </div>
 
-    <form class="message-form" th:action="@{/conversations/{id}/messages(id=${conversationId})}" method="post"
-          th:if="${!#lists.isEmpty(messages)}">
-        <input type="hidden" name="recipientUsername" th:value="${messages[0].senderUsername == #authentication.name ? messages[1].senderUsername : messages[0].senderUsername}"/>
+    <form class="message-form" th:action="@{/conversations/{id}/messages(id=${conversationId})}" method="post">
+        <input type="hidden" name="recipientUsername" th:if="${recipient != null}" th:value="${recipient.username}"/>
+
         <textarea name="content" placeholder="Type your message..." required></textarea>
         <button type="submit">Send</button>
     </form>

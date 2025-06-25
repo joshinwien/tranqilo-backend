@@ -13,16 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import com.tranqilo.dto.ConversationDto;
-import com.tranqilo.dto.MessageDto;
-import com.tranqilo.dto.UserDto;
-import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,6 +59,17 @@ public class MessagingService {
         participants.add(user2);
         conversation.setParticipants(participants);
         return conversationRepository.save(conversation);
+    }
+
+    @Transactional
+    public Conversation findOrCreateConversation(String username1, String username2) {
+        User user1 = userRepository.findByUsername(username1)
+                .orElseThrow(() -> new IllegalStateException("User not found: " + username1));
+        User user2 = userRepository.findByUsername(username2)
+                .orElseThrow(() -> new IllegalStateException("User not found: " + username2));
+
+        return conversationRepository.findByParticipants(user1, user2)
+                .orElseGet(() -> createNewConversation(user1, user2));
     }
 
     @Transactional(readOnly = true)

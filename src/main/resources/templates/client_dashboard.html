@@ -13,10 +13,17 @@
 
 <div class="dashboard-content">
     <h1>Client Dashboard</h1>
-    <p><a th:href="@{/inbox}">Go to Inbox</a></p> <p>Welcome!</p>
+    <p><a th:href="@{/inbox}">Go to Inbox</a></p>
+    <p>Welcome!</p>
 
     <div th:if="${coach != null}">
         <p>Your assigned coach is: <strong th:text="${coach.firstName + ' ' + coach.lastName}"></strong></p>
+
+        <form th:action="@{/conversations/start}" method="post" style="display: inline;">
+            <input type="hidden" name="recipientUsername" th:value="${coach.username}" />
+            <button type="submit">Message Coach</button>
+        </form>
+
     </div>
     <div th:if="${coach == null}">
         <p>You are not yet assigned to a coach.</p>
