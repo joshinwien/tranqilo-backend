@@ -10,10 +10,10 @@
 </head>
 <body>
 <div th:replace="~{fragments/_header :: page-header}"></div>
+<div th:replace="~{fragments/_header :: page-nav}"></div>
 
 <div class="dashboard-content">
     <h1>Client Dashboard</h1>
-    <p><a th:href="@{/inbox}">Go to Inbox</a></p>
     <p>Welcome!</p>
 
     <div th:if="${coach != null}">

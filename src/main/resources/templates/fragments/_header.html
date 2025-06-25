@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 
-<header th:fragment="page-header" style="background-color: #f8f9fa; padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+<header th:fragment="page-header" style="background-color: #f8f9fa; padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
     <div th:if="${currentUser != null}" style="display: flex; align-items: center; gap: 15px;">
         <div th:if="${currentUser.profilePictureUrl != null}">
             <img th:src="@{${currentUser.profilePictureUrl}}" alt="Profile Picture" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
@@ -17,6 +17,17 @@
         <button type="submit" style="background-color: #d9534f; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer;">Logout</button>
     </form>
 </header>
+
+<nav th:fragment="page-nav" style="background-color: #333; padding: 10px 20px; margin-bottom: 2rem; display: flex; gap: 20px;">
+    <a href="/" style="color: white; text-decoration: none;">Dashboard</a>
+    <a href="/inbox" style="color: white; text-decoration: none;">Inbox</a>
+
+    <div sec:authorize="hasRole('CLIENT')">
+    </div>
+
+    <div sec:authorize="hasRole('COACH')">
+    </div>
+</nav>
 
 </body>
 </html>

@@ -4,63 +4,22 @@
     <meta charset="UTF-8">
     <title>Coach Dashboard</title>
     <style>
-        body {
-            font-family: sans-serif;
-            margin: 0;
-        }
-
-        .dashboard-content {
-            padding: 0 2rem 2rem 2rem;
-            max-width: 800px;
-        }
-
-        .client-list {
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-        .client-list li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        .remove-btn {
-            background-color: #d9534f;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .success {
-            color: green;
-            border: 1px solid green;
-            padding: 10px;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-        }
-
-        .error {
-            color: red;
-            border: 1px solid red;
-            padding: 10px;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-        }
+        body { font-family: sans-serif; margin: 0; }
+        .dashboard-content { padding: 0 2rem 2rem 2rem; max-width: 800px;}
+        .client-list { list-style-type: none; padding-left: 0; }
+        .client-list li { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;}
+        .remove-btn { background-color: #d9534f; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .success { color: green; border: 1px solid green; padding: 10px; margin-bottom: 1rem; border-radius: 4px; }
+        .error { color: red; border: 1px solid red; padding: 10px; margin-bottom: 1rem; border-radius: 4px; }
     </style>
 </head>
 <body>
 <div th:replace="~{fragments/_header :: page-header}"></div>
+<div th:replace="~{fragments/_header :: page-nav}"></div>
 
 <div class="dashboard-content">
     <h1>Coach Dashboard</h1>
-    <p><a th:href="@{/inbox}">Go to Inbox</a></p>
+
     <div th:if="${successMessage}" class="success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
 
@@ -89,12 +48,12 @@
             <span th:text="${client.username}"></span>
             <div>
                 <form th:action="@{/conversations/start}" method="post" style="display: inline;">
-                    <input type="hidden" name="recipientUsername" th:value="${client.username}"/>
+                    <input type="hidden" name="recipientUsername" th:value="${client.username}" />
                     <button type="submit">Message</button>
                 </form>
 
                 <form th:action="@{/coach/remove-client}" method="post" style="display: inline;">
-                    <input type="hidden" name="clientUsername" th:value="${client.username}"/>
+                    <input type="hidden" name="clientUsername" th:value="${client.username}" />
                     <button type="submit" class="remove-btn">Remove</button>
                 </form>
             </div>
