@@ -18,18 +18,13 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    //
-    // The InMemoryUserDetailsManager bean is now REMOVED.
-    // Spring Security will automatically use the DatabaseUserDetailsService we created
-    // because it implements the UserDetailsService interface and is a @Service.
-    //
-
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
                         // ADD THE /register URL HERE
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/register").permitAll()
+                        .requestMatchers("/api/v1/**").permitAll() // Temporarily permit all API access
                         .requestMatchers("/coach/**").hasRole("COACH")
                         .requestMatchers("/client/**").hasRole("CLIENT")
                         .anyRequest().authenticated()
@@ -48,6 +43,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
 }
