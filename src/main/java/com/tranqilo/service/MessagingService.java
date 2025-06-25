@@ -1,5 +1,8 @@
 package com.tranqilo.service;
 
+import com.tranqilo.dto.ConversationDto;
+import com.tranqilo.dto.MessageDto;
+import com.tranqilo.dto.UserDto;
 import com.tranqilo.model.Conversation;
 import com.tranqilo.model.Message;
 import com.tranqilo.model.User;
@@ -11,7 +14,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.tranqilo.dto.ConversationDto;
+import com.tranqilo.dto.MessageDto;
+import com.tranqilo.dto.UserDto;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -53,5 +65,62 @@ public class MessagingService {
         participants.add(user2);
         conversation.setParticipants(participants);
         return conversationRepository.save(conversation);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ConversationDto> getConversationsForUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        return conversationRepository.findByParticipantId(user.getId()).stream()
+                .map(conversation -> convertToConversationDto(conversation, user))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<MessageDto> getMessagesForConversation(Long conversationId) {
+        return conversationRepository.findById(conversationId)
+                .map(conversation -> conversation.getMessages().stream()
+                        .map(this::convertToMessageDto)
+                        .sorted(Comparator.comparing(MessageDto::getCreatedAt))
+                        .collect(Collectors.toList()))
+                .orElse(List.of()); // Return empty list if conversation not found
+    }
+
+    private ConversationDto convertToConversationDto(Conversation conversation, User currentUser) {
+        ConversationDto dto = new ConversationDto();
+        dto.setId(conversation.getId());
+
+        // Set participants (excluding the current user)
+        dto.setParticipants(
+                conversation.getParticipants().stream()
+                        .filter(participant -> !participant.getId().equals(currentUser.getId()))
+                        .map(participant -> {
+                            UserDto.ClientSummaryDto summary = new UserDto.ClientSummaryDto();
+                            summary.setId(participant.getId());
+                            summary.setUsername(participant.getUsername());
+                            summary.setFirstName(participant.getFirstName());
+                            summary.setLastName(participant.getLastName());
+                            return summary;
+                        })
+                        .collect(Collectors.toSet())
+        );
+
+        // Find and set the last message
+        conversation.getMessages().stream()
+                .max(Comparator.comparing(Message::getCreatedAt))
+                .ifPresent(lastMessage -> dto.setLastMessage(convertToMessageDto(lastMessage)));
+
+        return dto;
+    }
+
+    private MessageDto convertToMessageDto(Message message) {
+        MessageDto dto = new MessageDto();
+        dto.setId(message.getId());
+        dto.setContent(message.getContent());
+        dto.setCreatedAt(message.getCreatedAt());
+        dto.setSenderId(message.getSender().getId());
+        dto.setSenderUsername(message.getSender().getUsername());
+        return dto;
     }
 }

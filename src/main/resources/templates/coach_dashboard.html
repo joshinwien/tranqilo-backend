@@ -18,7 +18,7 @@
 
 <div class="dashboard-content">
     <h1>Coach Dashboard</h1>
-
+    <p><a th:href="@{/inbox}">Go to Inbox</a></p>
     <div th:if="${successMessage}" class="success" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
 

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Inbox</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; }
+        .content { padding: 0 2rem 2rem 2rem; max-width: 800px; }
+        .conversation-list { list-style-type: none; padding: 0; }
+        .conversation-item { border: 1px solid #ddd; border-radius: 4px; margin-bottom: 10px; }
+        .conversation-item a { text-decoration: none; color: #333; display: block; padding: 15px; }
+        .conversation-item:hover { background-color: #f5f5f5; }
+        .participants { font-weight: bold; }
+        .last-message { color: #555; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 400px; display: block; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/_header :: page-header}"></div>
+
+<div class="content">
+    <h1>Inbox</h1>
+
+    <div th:if="${#lists.isEmpty(conversations)}">
+        <p>You have no conversations yet.</p>
+    </div>
+
+    <ul class="conversation-list" th:unless="${#lists.isEmpty(conversations)}">
+        <li th:each="convo : ${conversations}" class="conversation-item">
+            <a th:href="@{/conversations/{id}(id=${convo.id})}">
+                <div class="participants">
+                    <span th:each="participant, iterStat : ${convo.participants}"
+                          th:text="${participant.firstName + ' ' + participant.lastName} + (${!iterStat.last} ? ', ' : '')"></span>
+                </div>
+                <div class="last-message" th:if="${convo.lastMessage != null}">
+                    <span th:text="${convo.lastMessage.content}"></span>
+                </div>
+                <div class="last-message" th:if="${convo.lastMessage == null}">
+                    No messages yet...
+                </div>
+            </a>
+        </li>
+    </ul>
+</div>
+</body>
+</html>

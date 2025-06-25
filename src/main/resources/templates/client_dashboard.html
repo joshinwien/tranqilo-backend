@@ -13,7 +13,7 @@
 
 <div class="dashboard-content">
     <h1>Client Dashboard</h1>
-    <p>Welcome!</p>
+    <p><a th:href="@{/inbox}">Go to Inbox</a></p> <p>Welcome!</p>
 
     <div th:if="${coach != null}">
         <p>Your assigned coach is: <strong th:text="${coach.firstName + ' ' + coach.lastName}"></strong></p>
