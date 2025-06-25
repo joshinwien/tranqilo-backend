@@ -4,8 +4,10 @@ import com.tranqilo.model.Role;
 import com.tranqilo.model.User;
 import com.tranqilo.repository.UserRepository;
 import com.tranqilo.service.UserService;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -27,7 +29,13 @@ public class HomeController {
 
     @GetMapping("/login")
     public String login() {
-        return "login";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken) {
+            return "login";
+        }
+
+        // If user is already authenticated, redirect to the home page
+        return "redirect:/";
     }
 
     @GetMapping("/")
@@ -55,7 +63,6 @@ public class HomeController {
         model.addAttribute("unassignedClients", userRepository.findByRoleAndCoachIsNull(Role.CLIENT));
         return "coach_dashboard";
     }
-
 
 
     @GetMapping("/client/dashboard")
