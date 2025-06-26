@@ -10,6 +10,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,7 +49,7 @@ public class SecurityConfig {
         return http
                 .securityMatcher("/api/**") // Apply this chain to API paths only
                 .cors(withDefaults())
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for the API
+                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for the API
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login").permitAll() // Allow login
                         .anyRequest().authenticated() // Secure all other API endpoints
@@ -59,7 +60,7 @@ public class SecurityConfig {
                 .build();
     }
 
-    // ========== FILTER CHAIN FOR STATEFUL WEB APP (everything else) ==========
+    // ========== FILTER CHAIN FOR STATEFUL WEB APP ==========
     @Bean
     @Order(2)
     public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
@@ -96,10 +97,10 @@ public class SecurityConfig {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-        // Your CORS configuration remains the same
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "OPTIONS"));
+        // Add http://127.0.0.1:5173 to the list of allowed origins
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
