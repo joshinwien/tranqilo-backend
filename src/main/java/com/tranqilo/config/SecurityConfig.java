@@ -3,6 +3,7 @@ package com.tranqilo.config;
 import com.tranqilo.service.DatabaseUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -39,23 +41,43 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    // ========== FILTER CHAIN FOR STATELESS API (/api/**) ==========
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         return http
+                .securityMatcher("/api/**") // Apply this chain to API paths only
                 .cors(withDefaults())
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless API
+                .csrf(csrf -> csrf.disable()) // Disable CSRF for the API
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints for SPA (permit all, security is handled by JWT)
-                        .requestMatchers("/api/auth/login", "/api/v1/**").permitAll()
-                        // Endpoints for Thymeleaf (keep original security)
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/register", "/login", "/").permitAll()
+                        .requestMatchers("/api/auth/login").permitAll() // Allow login
+                        .anyRequest().authenticated() // Secure all other API endpoints
+                )
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Make it stateless
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
+
+    // ========== FILTER CHAIN FOR STATEFUL WEB APP (everything else) ==========
+    @Bean
+    @Order(2)
+    public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/register").permitAll()
                         .requestMatchers("/coach/**").hasRole("COACH")
                         .requestMatchers("/client/**").hasRole("CLIENT")
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Make API stateless
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+                .formLogin(form -> form
+                        .loginPage("/login").permitAll()
+                        .defaultSuccessUrl("/", true)
+                )
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutSuccessUrl("/login?logout").permitAll()
+                )
                 .build();
     }
 
