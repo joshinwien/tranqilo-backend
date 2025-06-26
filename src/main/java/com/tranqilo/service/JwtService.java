@@ -18,9 +18,11 @@ import java.util.function.Function;
 public class JwtService {
 
     private final SecretKey secretKey;
+    private final long jwtExpiration;
 
-    public JwtService(@Value("${jwt.secret}") String secret) {
+    public JwtService(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration}") long jwtExpiration) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        this.jwtExpiration = jwtExpiration;
     }
 
     public String extractUsername(String token) {
@@ -63,7 +65,7 @@ public class JwtService {
                 .claims(claims)
                 .subject(username)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 30)) // 30 minutes
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration)) // Use the configured expiration time
                 .signWith(secretKey)
                 .compact();
     }
