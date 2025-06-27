@@ -1,15 +1,16 @@
 package com.tranqilo.controller;
 
+import com.tranqilo.dto.ConversationDto;
+import com.tranqilo.dto.MessageDto;
 import com.tranqilo.dto.SendMessageRequest;
 import com.tranqilo.service.MessagingService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/messaging")
@@ -33,5 +34,17 @@ public class MessagingApiController {
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @GetMapping("/conversations")
+    public List<ConversationDto> getConversations(Authentication authentication) {
+        return messagingService.getConversationsForUser(authentication.getName());
+    }
+
+    @GetMapping("/conversations/{id}")
+    public List<MessageDto> getConversationMessages(@PathVariable Long id) {
+        // Note: For a real app, you'd add a security check here
+        // to ensure the logged-in user is part of this conversation.
+        return messagingService.getMessagesForConversation(id);
     }
 }

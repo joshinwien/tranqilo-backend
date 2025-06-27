@@ -87,16 +87,17 @@ public class MessagingService {
         return conversationRepository.findById(conversationId)
                 .map(conversation -> conversation.getMessages().stream()
                         .map(this::convertToMessageDto)
-                        .sorted(Comparator.comparing(MessageDto::getCreatedAt))
+                        .sorted(Comparator.comparing(MessageDto::getCreatedAt)) // Ensure messages are in order
                         .collect(Collectors.toList()))
-                .orElse(List.of()); // Return empty list if conversation not found
+                .orElse(List.of()); // Return an empty list if conversation isn't found
     }
 
+    // Helper method to convert a Conversation entity to a DTO
     private ConversationDto convertToConversationDto(Conversation conversation, User currentUser) {
         ConversationDto dto = new ConversationDto();
         dto.setId(conversation.getId());
 
-        // Set participants (excluding the current user)
+        // Find the other participant to display their name
         dto.setParticipants(
                 conversation.getParticipants().stream()
                         .filter(participant -> !participant.getId().equals(currentUser.getId()))
@@ -111,7 +112,7 @@ public class MessagingService {
                         .collect(Collectors.toSet())
         );
 
-        // Find and set the last message
+        // Find and set the last message for a preview in the inbox
         conversation.getMessages().stream()
                 .max(Comparator.comparing(Message::getCreatedAt))
                 .ifPresent(lastMessage -> dto.setLastMessage(convertToMessageDto(lastMessage)));
@@ -119,6 +120,7 @@ public class MessagingService {
         return dto;
     }
 
+    // Helper method to convert a Message entity to a DTO
     private MessageDto convertToMessageDto(Message message) {
         MessageDto dto = new MessageDto();
         dto.setId(message.getId());
