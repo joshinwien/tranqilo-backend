@@ -138,4 +138,9 @@ public class UserService {
         summaryDto.setLastName(coach.getLastName());
         return summaryDto;
     }
+
+    @Transactional(readOnly = true)
+    public Optional<UserDto> getUserByUsernameAsDto(String username) {
+        return userRepository.findByUsername(username).map(this::convertToDto);
+    }
 }
