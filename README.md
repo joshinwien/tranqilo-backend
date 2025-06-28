@@ -2,6 +2,8 @@
 
 A health recovery web application for coaches and clients. Built with Java and Spring Boot.
 
+**Frontend Repository:** [joshinwien/tranqilo-react](https://github.com/joshinwien/tranqilo-react)
+
 ## Features (MVP)
 
 - Role-based login (Client / Coach)
