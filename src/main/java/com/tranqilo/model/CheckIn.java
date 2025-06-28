@@ -28,7 +28,6 @@ public class CheckIn {
     @Column(nullable = false)
     private Integer energy; // e.g., a score from 1-10
 
-    // This field is now nullable. Hibernate will update the DB schema.
     @Column(name = "recovery_score")
     private Integer recoveryScore;
 
@@ -38,9 +37,7 @@ public class CheckIn {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-
+    // The @PrePersist method has been removed.
+    // The createdAt timestamp will now be set manually by the service layer,
+    // which gives us the control needed to create historical records correctly.
 }

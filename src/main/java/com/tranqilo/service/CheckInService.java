@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -22,25 +24,47 @@ public class CheckInService {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Creates and saves a new check-in for a given user.
-     * @param checkInDto The DTO containing the check-in data (mood, energy, notes).
-     * @param username The username of the user performing the check-in.
-     */
     public void createCheckIn(CheckInDto checkInDto, String username) {
-        // Find the user who is creating the check-in
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalStateException("User not found with username: " + username));
 
-        // Create a new CheckIn entity from the DTO
         CheckIn checkIn = new CheckIn();
         checkIn.setUser(user);
         checkIn.setMood(checkInDto.getMood());
         checkIn.setEnergy(checkInDto.getEnergy());
         checkIn.setNotes(checkInDto.getNotes());
-        checkIn.setCreatedAt(LocalDateTime.now()); // Set the creation timestamp
+        checkIn.setCreatedAt(LocalDateTime.now());
 
-        // Save the new check-in to the database
         checkInRepository.save(checkIn);
+    }
+
+    /**
+     * Gets the last 7 days of check-ins for a user.
+     * @param username The username of the user.
+     * @return A list of CheckInDto objects.
+     */
+    @Transactional(readOnly = true)
+    public List<CheckInDto> getWeeklyCheckInSummary(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalStateException("User not found with username: " + username));
+
+        LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
+
+        List<CheckIn> checkIns = checkInRepository.findByUserIdAndCreatedAtAfterOrderByCreatedAtAsc(user.getId(), sevenDaysAgo);
+
+        return checkIns.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    private CheckInDto convertToDto(CheckIn checkIn) {
+        CheckInDto dto = new CheckInDto();
+        dto.setId(checkIn.getId());
+        dto.setMood(checkIn.getMood());
+        dto.setEnergy(checkIn.getEnergy());
+        dto.setNotes(checkIn.getNotes());
+        dto.setCreatedAt(checkIn.getCreatedAt());
+        dto.setUsername(checkIn.getUser().getUsername());
+        return dto;
     }
 }
