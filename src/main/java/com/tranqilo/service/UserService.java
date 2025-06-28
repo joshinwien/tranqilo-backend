@@ -89,6 +89,14 @@ public class UserService {
         return userRepository.findByUsername(username).map(this::convertToDto);
     }
 
+    @Transactional(readOnly = true)
+    public List<UserDto> getUnassignedClients() {
+        return userRepository.findByRoleAndCoachIsNull(Role.CLIENT)
+                .stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     public UserDto updateUserProfile(String username, ProfileUpdateDto profileUpdateDto) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalStateException("User not found"));

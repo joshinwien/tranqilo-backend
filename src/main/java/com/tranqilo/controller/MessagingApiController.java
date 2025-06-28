@@ -1,5 +1,6 @@
 package com.tranqilo.controller;
 
+import com.tranqilo.dto.ConversationDetailDto;
 import com.tranqilo.dto.ConversationDto;
 import com.tranqilo.dto.MessageDto;
 import com.tranqilo.dto.SendMessageRequest;
@@ -43,9 +44,10 @@ public class MessagingApiController {
     }
 
     @GetMapping("/conversations/{id}")
-    public List<MessageDto> getConversationMessages(@PathVariable Long id, Authentication authentication) {
-        // In a real app, you would add a security check here to ensure the user is part of this conversation.
-        return messagingService.getMessagesForConversation(id);
+    public ResponseEntity<ConversationDetailDto> getConversationMessages(@PathVariable Long id, Authentication authentication) {
+        return messagingService.getConversationDetails(id, authentication.getName())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/start")

@@ -1,5 +1,6 @@
 package com.tranqilo.service;
 
+import com.tranqilo.dto.ConversationDetailDto;
 import com.tranqilo.dto.ConversationDto;
 import com.tranqilo.dto.MessageDto;
 import com.tranqilo.dto.UserDto;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -81,7 +83,6 @@ public class MessagingService {
 
     @Transactional(readOnly = true)
     public List<MessageDto> getMessagesForConversation(Long conversationId) {
-        // In a real app, you'd add a security check here to ensure the user has access to this conversation
         return conversationRepository.findById(conversationId)
                 .map(conversation -> conversation.getMessages().stream()
                         .map(this::convertToMessageDto)
@@ -90,26 +91,68 @@ public class MessagingService {
                 .orElse(List.of());
     }
 
+    /**
+     * Gets the full details for a single conversation, including participants and messages.
+     * Performs a check to ensure the requesting user is part of the conversation.
+     * @param conversationId The ID of the conversation.
+     * @param username The username of the user making the request.
+     * @return An Optional containing the ConversationDetailDto if found and authorized.
+     */
+    @Transactional(readOnly = true)
+    public Optional<ConversationDetailDto> getConversationDetails(Long conversationId, String username) {
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalStateException("User not found: " + username));
+
+        return conversationRepository.findById(conversationId)
+                // Security check: ensure the current user is a participant
+                .filter(conversation -> conversation.getParticipants().stream()
+                        .anyMatch(p -> p.getId().equals(currentUser.getId())))
+                .map(conversation -> convertToConversationDetailDto(conversation, currentUser));
+    }
+
     private ConversationDto convertToConversationDto(Conversation conversation, User currentUser) {
         ConversationDto dto = new ConversationDto();
         dto.setId(conversation.getId());
         dto.setParticipants(
                 conversation.getParticipants().stream()
                         .filter(participant -> !participant.getId().equals(currentUser.getId()))
-                        .map(participant -> {
-                            UserDto.ClientSummaryDto summary = new UserDto.ClientSummaryDto();
-                            summary.setId(participant.getId());
-                            summary.setUsername(participant.getUsername());
-                            summary.setFirstName(participant.getFirstName());
-                            summary.setLastName(participant.getLastName());
-                            return summary;
-                        })
+                        .map(this::convertUserToClientSummaryDto)
                         .collect(Collectors.toSet())
         );
         conversation.getMessages().stream()
                 .max(Comparator.comparing(Message::getCreatedAt))
                 .ifPresent(lastMessage -> dto.setLastMessage(convertToMessageDto(lastMessage)));
         return dto;
+    }
+
+    private ConversationDetailDto convertToConversationDetailDto(Conversation conversation, User currentUser) {
+        ConversationDetailDto dto = new ConversationDetailDto();
+        dto.setId(conversation.getId());
+
+        // Set the participants, including the current user in this case for context
+        dto.setParticipants(
+                conversation.getParticipants().stream()
+                        .map(this::convertUserToClientSummaryDto)
+                        .collect(Collectors.toSet())
+        );
+
+        // Set the messages, sorted by creation date
+        dto.setMessages(
+                conversation.getMessages().stream()
+                        .map(this::convertToMessageDto)
+                        .sorted(Comparator.comparing(MessageDto::getCreatedAt))
+                        .collect(Collectors.toList())
+        );
+        return dto;
+    }
+
+    private UserDto.ClientSummaryDto convertUserToClientSummaryDto(User user) {
+        UserDto.ClientSummaryDto summary = new UserDto.ClientSummaryDto();
+        summary.setId(user.getId());
+        summary.setUsername(user.getUsername());
+        summary.setFirstName(user.getFirstName());
+        summary.setLastName(user.getLastName());
+        return summary;
     }
 
     private MessageDto convertToMessageDto(Message message) {

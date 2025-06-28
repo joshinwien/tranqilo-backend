@@ -45,4 +45,9 @@ public class UserApiController {
         UserDto updatedUser = userService.updateUserProfile(username, profileUpdateDto);
         return ResponseEntity.ok(updatedUser);
     }
+
+    @GetMapping("/unassigned")
+    public List<UserDto> getUnassignedClients() {
+        return userService.getUnassignedClients();
+    }
 }

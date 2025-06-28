@@ -55,7 +55,6 @@ public class MessagingController {
 
         return "redirect:/conversations/" + conversationDto.getId();
     }
-
     @PostMapping("/conversations/{id}/messages")
     public String sendMessage(@PathVariable("id") Long conversationId,
                               @RequestParam String content,
