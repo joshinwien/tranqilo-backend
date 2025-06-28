@@ -2,7 +2,7 @@
 
 A health recovery web application for coaches and clients. Built with Java and Spring Boot.
 
-## 🌟 Features (MVP)
+## Features (MVP)
 
 - Role-based login (Client / Coach)
 - Client check-ins (mood, energy, notes)
@@ -11,13 +11,13 @@ A health recovery web application for coaches and clients. Built with Java and S
 - User profile with editable data
 - Secure Spring Boot backend with PostgreSQL
 
-## 🔮 Future Plans
+## Future Plans
 
 - Integration with Garmin / Apple Health
 - Activity tracking (manual & synced)
 - Notifications, visual graphs, and more!
 
-## 🛠 Tech Stack
+## Tech Stack
 
 - Java 17+
 - Spring Boot 3
@@ -25,7 +25,7 @@ A health recovery web application for coaches and clients. Built with Java and S
 - PostgreSQL
 - (Optional frontend: React / Vue)
 
-## 🧪 Run Locally
+## Run Locally
 
 Make sure you have Java + PostgreSQL installed.
 
@@ -37,6 +37,6 @@ cd tranqilo
 
 Create a `.env` file or set environment variables for DB credentials (or directly in application.properties).
 
-## 📄 License
+## License
 
 [MIT](LICENSE)
