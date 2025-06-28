@@ -5,6 +5,7 @@ import com.tranqilo.model.CheckIn;
 import com.tranqilo.model.User;
 import com.tranqilo.repository.CheckInRepository;
 import com.tranqilo.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +41,7 @@ public class CheckInService {
 
     /**
      * Gets the last 7 days of check-ins for a user.
+     *
      * @param username The username of the user.
      * @return A list of CheckInDto objects.
      */
@@ -55,6 +57,28 @@ public class CheckInService {
         return checkIns.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets the weekly check-in summary for a specific client, but only if the
+     * requesting coach is assigned to that client.
+     *
+     * @param clientId      The ID of the client whose data is being requested.
+     * @param coachUsername The username of the coach making the request.
+     * @return A list of CheckInDto objects.
+     */
+    @Transactional(readOnly = true)
+    public List<CheckInDto> getWeeklyCheckInSummaryForClient(Long clientId, String coachUsername) {
+        User client = userRepository.findById(clientId)
+                .orElseThrow(() -> new IllegalStateException("Client not found"));
+
+        // Security Check
+        if (client.getCoach() == null || !client.getCoach().getUsername().equals(coachUsername)) {
+            throw new AccessDeniedException("You are not authorized to view this client's data.");
+        }
+
+        // If authorized, reuse the existing method to get the summary
+        return getWeeklyCheckInSummary(client.getUsername());
     }
 
     private CheckInDto convertToDto(CheckIn checkIn) {
