@@ -33,22 +33,31 @@ public class MessagingService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
+    public ConversationDto findOrCreateConversationDto(String username1, String username2) {
+        User user1 = userRepository.findByUsername(username1)
+                .orElseThrow(() -> new IllegalStateException("User not found: " + username1));
+        User user2 = userRepository.findByUsername(username2)
+                .orElseThrow(() -> new IllegalStateException("User not found: " + username2));
+
+        Conversation conversation = conversationRepository.findByParticipants(user1, user2)
+                .orElseGet(() -> createNewConversation(user1, user2));
+
+        return convertToConversationDto(conversation, user1);
+    }
+
     public void sendMessage(String senderUsername, String recipientUsername, String content) {
         User sender = userRepository.findByUsername(senderUsername)
                 .orElseThrow(() -> new IllegalStateException("Sender not found"));
         User recipient = userRepository.findByUsername(recipientUsername)
                 .orElseThrow(() -> new IllegalStateException("Recipient not found"));
-
-        // Find existing conversation or create a new one
         Conversation conversation = conversationRepository.findByParticipants(sender, recipient)
                 .orElseGet(() -> createNewConversation(sender, recipient));
-
         Message message = new Message();
         message.setSender(sender);
         message.setConversation(conversation);
         message.setContent(content);
         message.setCreatedAt(LocalDateTime.now());
-
         messageRepository.save(message);
     }
 
@@ -61,22 +70,10 @@ public class MessagingService {
         return conversationRepository.save(conversation);
     }
 
-    @Transactional
-    public Conversation findOrCreateConversation(String username1, String username2) {
-        User user1 = userRepository.findByUsername(username1)
-                .orElseThrow(() -> new IllegalStateException("User not found: " + username1));
-        User user2 = userRepository.findByUsername(username2)
-                .orElseThrow(() -> new IllegalStateException("User not found: " + username2));
-
-        return conversationRepository.findByParticipants(user1, user2)
-                .orElseGet(() -> createNewConversation(user1, user2));
-    }
-
     @Transactional(readOnly = true)
     public List<ConversationDto> getConversationsForUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
-
         return conversationRepository.findByParticipantId(user.getId()).stream()
                 .map(conversation -> convertToConversationDto(conversation, user))
                 .collect(Collectors.toList());
@@ -84,20 +81,18 @@ public class MessagingService {
 
     @Transactional(readOnly = true)
     public List<MessageDto> getMessagesForConversation(Long conversationId) {
+        // In a real app, you'd add a security check here to ensure the user has access to this conversation
         return conversationRepository.findById(conversationId)
                 .map(conversation -> conversation.getMessages().stream()
                         .map(this::convertToMessageDto)
-                        .sorted(Comparator.comparing(MessageDto::getCreatedAt)) // Ensure messages are in order
+                        .sorted(Comparator.comparing(MessageDto::getCreatedAt))
                         .collect(Collectors.toList()))
-                .orElse(List.of()); // Return an empty list if conversation isn't found
+                .orElse(List.of());
     }
 
-    // Helper method to convert a Conversation entity to a DTO
     private ConversationDto convertToConversationDto(Conversation conversation, User currentUser) {
         ConversationDto dto = new ConversationDto();
         dto.setId(conversation.getId());
-
-        // Find the other participant to display their name
         dto.setParticipants(
                 conversation.getParticipants().stream()
                         .filter(participant -> !participant.getId().equals(currentUser.getId()))
@@ -111,16 +106,12 @@ public class MessagingService {
                         })
                         .collect(Collectors.toSet())
         );
-
-        // Find and set the last message for a preview in the inbox
         conversation.getMessages().stream()
                 .max(Comparator.comparing(Message::getCreatedAt))
                 .ifPresent(lastMessage -> dto.setLastMessage(convertToMessageDto(lastMessage)));
-
         return dto;
     }
 
-    // Helper method to convert a Message entity to a DTO
     private MessageDto convertToMessageDto(Message message) {
         MessageDto dto = new MessageDto();
         dto.setId(message.getId());

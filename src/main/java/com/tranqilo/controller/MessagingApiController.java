@@ -3,6 +3,7 @@ package com.tranqilo.controller;
 import com.tranqilo.dto.ConversationDto;
 import com.tranqilo.dto.MessageDto;
 import com.tranqilo.dto.SendMessageRequest;
+import com.tranqilo.dto.StartConversationRequest;
 import com.tranqilo.service.MessagingService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -42,9 +43,15 @@ public class MessagingApiController {
     }
 
     @GetMapping("/conversations/{id}")
-    public List<MessageDto> getConversationMessages(@PathVariable Long id) {
-        // Note: For a real app, you'd add a security check here
-        // to ensure the logged-in user is part of this conversation.
+    public List<MessageDto> getConversationMessages(@PathVariable Long id, Authentication authentication) {
+        // In a real app, you would add a security check here to ensure the user is part of this conversation.
         return messagingService.getMessagesForConversation(id);
+    }
+
+    @PostMapping("/start")
+    public ResponseEntity<ConversationDto> startConversation(@Valid @RequestBody StartConversationRequest request, Authentication authentication) {
+        String senderUsername = authentication.getName();
+        ConversationDto conversationDto = messagingService.findOrCreateConversationDto(senderUsername, request.getRecipientUsername());
+        return ResponseEntity.ok(conversationDto);
     }
 }
