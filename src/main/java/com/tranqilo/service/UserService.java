@@ -110,27 +110,17 @@ public class UserService {
         return convertToDto(updatedUser);
     }
 
-    /**
-     * Gets the details for a specific client, but only if the requesting coach
-     * is assigned to that client.
-     * @param clientId The ID of the client to fetch.
-     * @param coachUsername The username of the coach making the request.
-     * @return An Optional containing the UserDto if access is permitted.
-     */
     @Transactional(readOnly = true)
     public Optional<UserDto> getClientByIdForCoach(Long clientId, String coachUsername) {
         User client = userRepository.findById(clientId)
                 .orElseThrow(() -> new IllegalStateException("Client not found"));
 
-        // Security Check: Is the client actually assigned to this coach?
         if (client.getCoach() == null || !client.getCoach().getUsername().equals(coachUsername)) {
             throw new AccessDeniedException("You are not authorized to view this client's data.");
         }
 
         return Optional.of(convertToDto(client));
     }
-
-    // --- DTO Conversion Helper Methods ---
 
     private UserDto convertToDto(User user) {
         UserDto dto = new UserDto();

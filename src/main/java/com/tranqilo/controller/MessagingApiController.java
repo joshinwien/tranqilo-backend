@@ -2,7 +2,6 @@ package com.tranqilo.controller;
 
 import com.tranqilo.dto.ConversationDetailDto;
 import com.tranqilo.dto.ConversationDto;
-import com.tranqilo.dto.MessageDto;
 import com.tranqilo.dto.SendMessageRequest;
 import com.tranqilo.dto.StartConversationRequest;
 import com.tranqilo.service.MessagingService;
