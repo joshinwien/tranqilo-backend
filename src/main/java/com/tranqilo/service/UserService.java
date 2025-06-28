@@ -1,5 +1,6 @@
 package com.tranqilo.service;
 
+import com.tranqilo.dto.ProfileUpdateDto;
 import com.tranqilo.dto.RegistrationDto;
 import com.tranqilo.dto.UserDto;
 import com.tranqilo.model.Role;
@@ -26,31 +27,20 @@ public class UserService {
     }
 
     public void registerUser(RegistrationDto registrationDto) {
-        // Check if username already exists
         if (userRepository.findByUsername(registrationDto.getUsername()).isPresent()) {
             throw new IllegalStateException("Username already exists");
         }
-        // Check if email already exists
-        // (You should create a findByEmail method in your UserRepository for this)
-        // if (userRepository.findByEmail(registrationDto.getEmail()).isPresent()) {
-        //     throw new IllegalStateException("Email already in use");
-        // }
-
-        // Check if passwords match
         if (!registrationDto.getPassword().equals(registrationDto.getConfirmPassword())) {
             throw new IllegalStateException("Passwords do not match");
         }
-
         User newUser = new User();
         newUser.setUsername(registrationDto.getUsername());
-        // Always encode the password before saving!
         newUser.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
         newUser.setRole(registrationDto.getRole());
         newUser.setFirstName(registrationDto.getFirstName());
         newUser.setLastName(registrationDto.getLastName());
         newUser.setEmail(registrationDto.getEmail());
         newUser.setBirthDate(registrationDto.getBirthDate());
-
         userRepository.save(newUser);
     }
 
@@ -59,15 +49,12 @@ public class UserService {
                 .orElseThrow(() -> new IllegalStateException("Coach not found"));
         User client = userRepository.findByUsername(clientUsername)
                 .orElseThrow(() -> new IllegalStateException("Client not found"));
-
         if (client.getRole() != Role.CLIENT) {
             throw new IllegalStateException("Cannot add a user who is not a client.");
         }
-
         if (client.getCoach() != null) {
             throw new IllegalStateException("Client is already assigned to another coach.");
         }
-
         client.setCoach(coach);
         userRepository.save(client);
     }
@@ -77,13 +64,10 @@ public class UserService {
                 .orElseThrow(() -> new IllegalStateException("Coach not found"));
         User client = userRepository.findByUsername(clientUsername)
                 .orElseThrow(() -> new IllegalStateException("Client not found"));
-
-        // Security check: ensure the client belongs to this coach
         if (client.getCoach() == null || !client.getCoach().getId().equals(coach.getId())) {
             throw new IllegalStateException("This client is not assigned to you.");
         }
-
-        client.setCoach(null); // This severs the relationship
+        client.setCoach(null);
         userRepository.save(client);
     }
 
@@ -99,6 +83,26 @@ public class UserService {
         return userRepository.findById(id).map(this::convertToDto);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<UserDto> getUserByUsernameAsDto(String username) {
+        return userRepository.findByUsername(username).map(this::convertToDto);
+    }
+
+    public UserDto updateUserProfile(String username, ProfileUpdateDto profileUpdateDto) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+
+        user.setFirstName(profileUpdateDto.getFirstName());
+        user.setLastName(profileUpdateDto.getLastName());
+        user.setEmail(profileUpdateDto.getEmail());
+        user.setBirthDate(profileUpdateDto.getBirthDate());
+
+        User updatedUser = userRepository.save(user);
+        return convertToDto(updatedUser);
+    }
+
+    // --- DTO Conversion Helper Methods ---
+
     private UserDto convertToDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
@@ -109,15 +113,12 @@ public class UserService {
         dto.setEmail(user.getEmail());
         dto.setBirthDate(user.getBirthDate());
         dto.setProfilePictureUrl(user.getProfilePictureUrl());
-
         if (user.getRole() == Role.COACH) {
             dto.setClients(user.getClients().stream().map(this::convertClientToSummaryDto).collect(Collectors.toSet()));
         }
-
         if (user.getRole() == Role.CLIENT && user.getCoach() != null) {
             dto.setCoach(convertCoachToSummaryDto(user.getCoach()));
         }
-
         return dto;
     }
 
@@ -137,10 +138,5 @@ public class UserService {
         summaryDto.setFirstName(coach.getFirstName());
         summaryDto.setLastName(coach.getLastName());
         return summaryDto;
-    }
-
-    @Transactional(readOnly = true)
-    public Optional<UserDto> getUserByUsernameAsDto(String username) {
-        return userRepository.findByUsername(username).map(this::convertToDto);
     }
 }

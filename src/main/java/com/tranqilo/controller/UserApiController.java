@@ -1,13 +1,12 @@
 package com.tranqilo.controller;
 
+import com.tranqilo.dto.ProfileUpdateDto;
 import com.tranqilo.dto.UserDto;
 import com.tranqilo.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,10 +34,15 @@ public class UserApiController {
 
     @GetMapping("/me")
     public ResponseEntity<UserDto> getMyDetails(Authentication authentication) {
-        // The JWT filter has already authenticated the user.
-        // We can get their username from the Authentication principal.
         return userService.getUserByUsernameAsDto(authentication.getName())
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/me/profile")
+    public ResponseEntity<UserDto> updateMyProfile(@Valid @RequestBody ProfileUpdateDto profileUpdateDto, Authentication authentication) {
+        String username = authentication.getName();
+        UserDto updatedUser = userService.updateUserProfile(username, profileUpdateDto);
+        return ResponseEntity.ok(updatedUser);
     }
 }
