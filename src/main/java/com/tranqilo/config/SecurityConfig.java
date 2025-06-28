@@ -3,14 +3,12 @@ package com.tranqilo.config;
 import com.tranqilo.service.DatabaseUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -42,40 +40,38 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ========== FILTER CHAIN FOR STATELESS API (/api/**) ==========
     @Bean
-    @Order(1)
-    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/api/**") // Apply this chain to API paths only
                 .cors(withDefaults())
-                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for the API
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login").permitAll() // Allow login
-                        .anyRequest().authenticated() // Secure all other API endpoints
+                .csrf(csrf -> csrf
+                        // Disable CSRF protection for our stateless API paths
+                        .ignoringRequestMatchers(new AntPathRequestMatcher("/api/**"))
                 )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Make it stateless
-                .authenticationProvider(authenticationProvider())
-                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
-
-    // ========== FILTER CHAIN FOR STATEFUL WEB APP ==========
-    @Bean
-    @Order(2)
-    public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
-        return http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/register").permitAll()
+                        // Public endpoints
+                        .requestMatchers("/api/auth/login", "/css/**", "/js/**", "/images/**", "/register").permitAll()
+                        // API endpoints require authentication (but not a specific role here)
+                        .requestMatchers("/api/**").authenticated()
+                        // Web page endpoints by role
                         .requestMatchers("/coach/**").hasRole("COACH")
                         .requestMatchers("/client/**").hasRole("CLIENT")
+                        // All other requests must be authenticated
                         .anyRequest().authenticated()
                 )
-                .formLogin(form -> form
+                .sessionManagement(sess -> sess
+                        // Set the session creation policy to STATELESS for API requests
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                        // Allow Spring to manage sessions for non-API requests (the Thymeleaf app)
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+                .formLogin(form -> form // Configure form login for the web app
                         .loginPage("/login").permitAll()
                         .defaultSuccessUrl("/", true)
                 )
-                .logout(logout -> logout
+                .logout(logout -> logout // Configure logout for the web app
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessUrl("/login?logout").permitAll()
                 )
@@ -97,10 +93,10 @@ public class SecurityConfig {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
+        // Your CORS configuration remains the same
         CorsConfiguration configuration = new CorsConfiguration();
-        // Add http://127.0.0.1:5173 to the list of allowed origins
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -19,7 +19,7 @@ public class CheckIn {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false) // name not needed?
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(nullable = false)
@@ -28,10 +28,11 @@ public class CheckIn {
     @Column(nullable = false)
     private Integer energy; // e.g., a score from 1-10
 
-//    @Column(name = "recovery_score", nullable = false)
-//    private Integer recoveryScore; // e.g., a score from 1-10
+    // This field is now nullable. Hibernate will update the DB schema.
+    @Column(name = "recovery_score")
+    private Integer recoveryScore;
 
-    @Lob // check this
+    @Lob
     private String notes;
 
     @Column(name = "created_at", nullable = false, updatable = false)
