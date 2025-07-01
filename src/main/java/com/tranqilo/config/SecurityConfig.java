@@ -41,27 +41,25 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ========== FILTER CHAIN FOR STATELESS API (/api/**) ==========
     @Bean
-    @Order(1)
+    @Order(1) // This filter chain runs first for API requests
     public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         return http
-                .securityMatcher("/api/**") // Apply this chain to API paths only
+                .securityMatcher("/api/**") // Apply this chain ONLY to /api/** paths
                 .cors(withDefaults())
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for the API
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login").permitAll() // Allow login
-                        .anyRequest().authenticated() // Secure all other API endpoints
+                        .requestMatchers("/api/auth/login").permitAll()
+                        .anyRequest().authenticated()
                 )
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Make it stateless
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    // ========== FILTER CHAIN FOR STATEFUL WEB APP (everything else) ==========
     @Bean
-    @Order(2)
+    @Order(2) // This filter chain runs for all other requests
     public SecurityFilterChain webFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
@@ -96,9 +94,8 @@ public class SecurityConfig {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
-        // Your CORS configuration remains the same
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173"));
         configuration.setAllowedMethods(Arrays.asList("GET","POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true);

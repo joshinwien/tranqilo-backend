@@ -1,12 +1,12 @@
 package com.tranqilo.controller;
 
+import com.tranqilo.dto.ProfileUpdateDto;
 import com.tranqilo.dto.UserDto;
 import com.tranqilo.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,5 +30,24 @@ public class UserApiController {
         return userService.getUserByIdAsDto(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getMyDetails(Authentication authentication) {
+        return userService.getUserByUsernameAsDto(authentication.getName())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/me/profile")
+    public ResponseEntity<UserDto> updateMyProfile(@Valid @RequestBody ProfileUpdateDto profileUpdateDto, Authentication authentication) {
+        String username = authentication.getName();
+        UserDto updatedUser = userService.updateUserProfile(username, profileUpdateDto);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    @GetMapping("/unassigned")
+    public List<UserDto> getUnassignedClients() {
+        return userService.getUnassignedClients();
     }
 }

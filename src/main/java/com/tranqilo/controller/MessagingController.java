@@ -1,5 +1,6 @@
 package com.tranqilo.controller;
 
+import com.tranqilo.dto.ConversationDto;
 import com.tranqilo.model.Conversation;
 import com.tranqilo.service.MessagingService;
 import org.springframework.security.core.Authentication;
@@ -50,10 +51,10 @@ public class MessagingController {
 
     @PostMapping("/conversations/start")
     public String startOrFindConversation(@RequestParam String recipientUsername, Authentication authentication) {
-        Conversation conversation = messagingService.findOrCreateConversation(authentication.getName(), recipientUsername);
-        return "redirect:/conversations/" + conversation.getId();
-    }
+        ConversationDto conversationDto = messagingService.findOrCreateConversationDto(authentication.getName(), recipientUsername);
 
+        return "redirect:/conversations/" + conversationDto.getId();
+    }
     @PostMapping("/conversations/{id}/messages")
     public String sendMessage(@PathVariable("id") Long conversationId,
                               @RequestParam String content,
