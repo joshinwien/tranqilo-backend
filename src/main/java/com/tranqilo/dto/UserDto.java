@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 @Data
-@JsonInclude(JsonInclude.Include.NON_NULL) // This will hide null fields in the JSON output
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
     private Long id;
     private String username;
@@ -19,10 +19,8 @@ public class UserDto {
     private LocalDate birthDate;
     private String profilePictureUrl;
 
-    // For Coaches
     private Set<ClientSummaryDto> clients;
 
-    // For Clients
     private CoachSummaryDto coach;
 
     @Data

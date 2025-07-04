@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"user"}) // Exclude the User object to prevent infinite loops
+@ToString(exclude = {"user"})
 public class CheckIn {
 
     @Id
@@ -23,10 +23,10 @@ public class CheckIn {
     private User user;
 
     @Column(nullable = false)
-    private Integer mood; // e.g., a score from 1-10
+    private Integer mood;
 
     @Column(nullable = false)
-    private Integer energy; // e.g., a score from 1-10
+    private Integer energy;
 
     @Column(name = "recovery_score")
     private Integer recoveryScore;
@@ -37,7 +37,4 @@ public class CheckIn {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // The @PrePersist method has been removed.
-    // The createdAt timestamp will now be set manually by the service layer,
-    // which gives us the control needed to create historical records correctly.
 }

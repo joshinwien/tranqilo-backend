@@ -1,7 +1,6 @@
 package com.tranqilo.controller;
 
 import com.tranqilo.dto.ConversationDto;
-import com.tranqilo.model.Conversation;
 import com.tranqilo.service.MessagingService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -29,11 +28,8 @@ public class MessagingController {
     @GetMapping("/conversations/{id}")
     public String showConversation(@PathVariable("id") Long conversationId, Model model, Authentication authentication) {
         String currentUsername = authentication.getName();
-
-        // Add the current user's username to the model
         model.addAttribute("currentUsername", currentUsername);
 
-        // Find the other participant in the conversation and add them to the model
         messagingService.getConversationsForUser(currentUsername).stream()
                 .filter(c -> c.getId().equals(conversationId))
                 .findFirst()
@@ -55,6 +51,7 @@ public class MessagingController {
 
         return "redirect:/conversations/" + conversationDto.getId();
     }
+
     @PostMapping("/conversations/{id}/messages")
     public String sendMessage(@PathVariable("id") Long conversationId,
                               @RequestParam String content,

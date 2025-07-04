@@ -1,6 +1,7 @@
 package com.tranqilo.dto;
 
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
