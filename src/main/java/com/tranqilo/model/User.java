@@ -13,7 +13,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"coach", "clients"}) // Exclude relationships to prevent infinite loops
+@ToString(exclude = {"coach", "clients"})
 public class User {
 
     @Id

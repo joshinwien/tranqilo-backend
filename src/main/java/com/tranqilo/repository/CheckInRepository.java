@@ -13,7 +13,8 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
     /**
      * Finds all check-ins for a specific user created after a given timestamp,
      * ordered by the creation date.
-     * @param userId The ID of the user.
+     *
+     * @param userId    The ID of the user.
      * @param startDate The start date to filter check-ins from.
      * @return A list of check-ins.
      */

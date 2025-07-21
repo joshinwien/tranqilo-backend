@@ -72,12 +72,10 @@ public class CheckInService {
         User client = userRepository.findById(clientId)
                 .orElseThrow(() -> new IllegalStateException("Client not found"));
 
-        // Security Check
         if (client.getCoach() == null || !client.getCoach().getUsername().equals(coachUsername)) {
             throw new AccessDeniedException("You are not authorized to view this client's data.");
         }
 
-        // If authorized, reuse the existing method to get the summary
         return getWeeklyCheckInSummary(client.getUsername());
     }
 

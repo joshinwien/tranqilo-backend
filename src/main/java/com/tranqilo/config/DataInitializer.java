@@ -95,7 +95,7 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(client);
         }
 
-        // --- NEW: HISTORICAL CHECK-IN DATA ---
+        // --- HISTORICAL CHECK-IN DATA ---
         createHistoricalCheckInsForUser(client);
         createHistoricalCheckInsForUser(client2);
     }

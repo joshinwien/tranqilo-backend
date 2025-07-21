@@ -70,8 +70,6 @@ public class HomeController {
     public String clientDashboard(Model model, Authentication authentication) {
         User currentUser = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new IllegalStateException("Cannot find logged in client"));
-        // We no longer need to pass the client explicitly, the GlobalControllerAdvice handles it.
-        // We only need to pass the data specific to this page.
         model.addAttribute("coach", currentUser.getCoach());
         return "client_dashboard";
     }

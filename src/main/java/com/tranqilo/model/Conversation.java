@@ -12,7 +12,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"participants", "messages"}) // Exclude both relationships
+@ToString(exclude = {"participants", "messages"})
 public class Conversation {
 
     @Id

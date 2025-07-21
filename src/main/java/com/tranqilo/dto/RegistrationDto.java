@@ -18,7 +18,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Getter
 public class RegistrationDto {
 
-    // Getters and Setters
     @NotEmpty(message = "Username cannot be empty.")
     @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters.")
     private String username;
