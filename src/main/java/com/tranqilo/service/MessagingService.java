@@ -94,8 +94,9 @@ public class MessagingService {
     /**
      * Gets the full details for a single conversation, including participants and messages.
      * Performs a check to ensure the requesting user is part of the conversation.
+     *
      * @param conversationId The ID of the conversation.
-     * @param username The username of the user making the request.
+     * @param username       The username of the user making the request.
      * @return An Optional containing the ConversationDetailDto if found and authorized.
      */
     @Transactional(readOnly = true)
@@ -104,7 +105,6 @@ public class MessagingService {
                 .orElseThrow(() -> new IllegalStateException("User not found: " + username));
 
         return conversationRepository.findById(conversationId)
-                // Security check: ensure the current user is a participant
                 .filter(conversation -> conversation.getParticipants().stream()
                         .anyMatch(p -> p.getId().equals(currentUser.getId())))
                 .map(conversation -> convertToConversationDetailDto(conversation, currentUser));
@@ -129,14 +129,12 @@ public class MessagingService {
         ConversationDetailDto dto = new ConversationDetailDto();
         dto.setId(conversation.getId());
 
-        // Set the participants, including the current user in this case for context
         dto.setParticipants(
                 conversation.getParticipants().stream()
                         .map(this::convertUserToClientSummaryDto)
                         .collect(Collectors.toSet())
         );
 
-        // Set the messages, sorted by creation date
         dto.setMessages(
                 conversation.getMessages().stream()
                         .map(this::convertToMessageDto)

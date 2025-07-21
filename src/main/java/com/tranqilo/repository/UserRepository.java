@@ -13,6 +13,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
-    // Finds all users with a specific role whose 'coach' field is null.
     List<User> findByRoleAndCoachIsNull(Role role);
 }

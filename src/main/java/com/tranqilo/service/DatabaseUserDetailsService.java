@@ -21,15 +21,15 @@ public class DatabaseUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // 1. Find the user in your database
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+        if (user.getRole() == null) {
+            throw new UsernameNotFoundException("User '" + username + "' has no role assigned.");
+        }
 
-        // 2. Convert your User entity to Spring Security's UserDetails
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
-                // Roles must be prefixed with "ROLE_" for Spring Security
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }

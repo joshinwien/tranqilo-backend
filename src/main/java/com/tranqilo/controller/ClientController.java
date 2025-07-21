@@ -26,8 +26,7 @@ public class ClientController {
     }
 
     /**
-     * Endpoint for a coach to get the details of a specific client.
-     * Includes a security check to ensure the coach is assigned to the client.
+     * Endpoint for a coach to get the details of a specific client..
      */
     @GetMapping("/{clientId}")
     public ResponseEntity<UserDto> getClientDetails(@PathVariable Long clientId, Authentication authentication) {
@@ -39,7 +38,6 @@ public class ClientController {
 
     /**
      * Endpoint for a coach to get the 7-day check-in summary for a specific client.
-     * Includes a security check.
      */
     @GetMapping("/{clientId}/check-ins/summary")
     public ResponseEntity<List<CheckInDto>> getClientCheckInSummary(@PathVariable Long clientId, Authentication authentication) {

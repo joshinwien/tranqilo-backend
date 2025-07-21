@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = {"conversation", "sender"}) // Exclude both relationships
+@ToString(exclude = {"conversation", "sender"})
 public class Message {
 
     @Id
